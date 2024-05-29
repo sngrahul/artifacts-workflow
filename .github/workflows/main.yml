@@ -1,0 +1,84 @@
+#Upload and Download artifacts
+name: Artifacts-workflow
+on: 
+      push:
+            branches:
+            - main
+      pull_request:
+            branches:
+            - main
+#CI/CD job with matrix build          
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        java-version: [17, 18]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+      - name: setup java
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ matrix.java-version}}
+          distribution: 'temurin'
+      - name: create data
+        run: |
+            printf '{
+              "A": "Simple json file with zero data",
+              "B": data
+              }' >> testartifact.json
+      - uses: actions/upload-artifact@v3
+        with:
+          name: testartifact.json
+          path: ${{ github.workspace }}
+
+              
+              
+      
+       
+ #Download artifact 
+  Deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: development 
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v3
+      - name: Install NodeJS
+        uses: actions/setup-node@v3
+      - name: download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: testartifact.json
+          path: main
+      - name: Deploy
+        run: echo "Deployed artifacts to  development environment"
+  Test:
+    needs: Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test the build
+        run: |
+          ls -la ${{ github.workspace }}
+        
+          
+                    
+      
+  #Reusable workflow      
+  Deploytestenv:
+    needs: Deploy
+    uses: ./.github/workflows/reusable.yml
+   #Test environment deployment
+    ##runs-on: ubuntu-latest
+    ##environment: testing-env
+    ##steps:
+      ##- name: deploy to test env
+        ##run: echo " deployed to test environment"
+        
+
+  
+   
+        
+      
