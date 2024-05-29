@@ -67,9 +67,9 @@ jobs:
                     
       
   #Reusable workflow      
-  Deploytestenv:
-    needs: Deploy
-    uses: ./.github/workflows/reusable.yml
+  #Deploytestenv:
+    #needs: Deploy
+    #uses: ./.github/workflows/reusable.yml
    #Test environment deployment
     ##runs-on: ubuntu-latest
     ##environment: testing-env
